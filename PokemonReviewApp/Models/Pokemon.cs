@@ -1,4 +1,6 @@
-﻿namespace PokemonReviewApp.Models
+﻿using System.Text.Json.Serialization;
+
+namespace PokemonReviewApp.Models
 {
     public class Pokemon
     {

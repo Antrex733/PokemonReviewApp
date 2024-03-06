@@ -11,7 +11,7 @@ namespace PokemonReviewApp.Controllers
 {
     [Controller]
     [Route("api/[controller]")]
-    public class CountryController :ControllerBase
+    public class CountryController : ControllerBase
     {
         private readonly ICountryRepository _countryRepository;
         private readonly IMapper _mapper;
@@ -47,7 +47,7 @@ namespace PokemonReviewApp.Controllers
             }
             return Ok(result);
         }
-        
+
         [HttpGet("GetCountryByOwner/{ownerId}")]
         [ProducesResponseType(200, Type = typeof(CountryDto))]
         [ProducesResponseType(400)]
@@ -78,6 +78,7 @@ namespace PokemonReviewApp.Controllers
         [HttpPost]
         [ProducesResponseType(204)]
         [ProducesResponseType(400)]
+        [ProducesResponseType(404)]
         public IActionResult CreateCountry([FromBody] CountryDto countryCreate)
         {
             if (countryCreate == null)
@@ -108,5 +109,57 @@ namespace PokemonReviewApp.Controllers
             return Ok("Successfully created");
         }
 
+        [HttpPut("{countryId}")]
+        [ProducesResponseType(204)]
+        [ProducesResponseType(400)]
+        [ProducesResponseType(404)]
+        public IActionResult UpdateCountry(int countryId, [FromBody] CountryDto Updatedcountry)
+        {
+            if(Updatedcountry == null)
+                return BadRequest(ModelState);
+
+            if (Updatedcountry.Id != countryId)
+                return BadRequest(ModelState);
+
+            if(!_countryRepository.CountryExists(countryId))
+                return NotFound();
+
+            if (!ModelState.IsValid)
+                return BadRequest();
+
+            var mapCountry = _mapper.Map<Country>(Updatedcountry);
+
+            if (!_countryRepository.UpdateCountry(mapCountry))
+            {
+                ModelState.AddModelError("", "Something went wrong updating country");
+                return StatusCode(500, ModelState);
+            }
+            
+            return NoContent();
+        }
+
+        [HttpDelete("{countryId}")]
+        [ProducesResponseType(400)]
+        [ProducesResponseType(204)]
+        [ProducesResponseType(404)]
+        public IActionResult DeleteCountry(int countryId)
+        {
+            if (!_countryRepository.CountryExists(countryId))
+            {
+                return NotFound();
+            }
+
+            var countryToDelete = _countryRepository.GetCountry(countryId);
+
+            if (!ModelState.IsValid)
+                return BadRequest(ModelState);
+
+            if (!_countryRepository.DeleteCountry(countryToDelete))
+            {
+                ModelState.AddModelError("", "Something went wrong deleting country");
+            }
+
+            return NoContent();
+        }
     }
 }

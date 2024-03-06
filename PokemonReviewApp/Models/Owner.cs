@@ -1,4 +1,6 @@
-﻿namespace PokemonReviewApp.Models
+﻿using System.Text.Json.Serialization;
+
+namespace PokemonReviewApp.Models
 {
     public class Owner
     {
@@ -10,6 +12,7 @@
         public Country Country { get; set; }
         public int CountryId { get; set; }
 
+        [JsonIgnore]
         public ICollection<Pokemon> Pokemons { get; set; }
     }
 }
